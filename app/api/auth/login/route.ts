@@ -98,7 +98,7 @@ async function authenticateWithLDAP(username: string, password: string): Promise
 
                 const entries: Array<{ dn: string; attributes: any }> = [];
                 
-                res.on('searchEntry', (entry) => {
+                res.on('searchEntry', (entry: any) => {
                   // The DN is in entry.objectName, but it's an LdapDn object
                   // Convert it to string using toString() or .dn property
                   let userDN = entry.objectName;

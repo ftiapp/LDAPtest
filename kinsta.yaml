@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ldap-test-app
+spec:
+  build:
+    nodejs: "20"
+  run:
+    command: npm run start
+    port: 3000
+  env:
+    - name: NODE_ENV
+      value: production
