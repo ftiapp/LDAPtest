@@ -58,7 +58,7 @@ async function authenticateViaProxy(username: string, password: string): Promise
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
     
-    const response = await fetch(`${PROXY_LDAP_URL}/api/ldap/auth`, {
+    const response = await fetch(`${PROXY_LDAP_URL}/api/gateway/ldap`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

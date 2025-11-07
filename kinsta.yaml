@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ldap-gateway
+  name: ldap-app
 spec:
   build:
     nodejs: "20"
   run:
-    command: npm run kinsta-gateway
+    command: npm run start
     port: 3000
   env:
     - name: NODE_ENV
