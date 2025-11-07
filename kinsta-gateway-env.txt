@@ -1,0 +1,35 @@
+# Kinsta Gateway Environment Variables
+# สำหรับ deploy API Gateway บน Kinsta โดยตรง
+
+# Gateway Settings
+GATEWAY_API_KEY=your-kinsta-gateway-secret-key
+PORT=3000
+
+# SSH Tunnel Configuration (จำเป็น)
+SSH_HOST=203.151.40.52
+SSH_PORT=22
+SSH_USERNAME=your_ssh_username
+SSH_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----
+...your private key content...
+-----END PRIVATE KEY-----
+# หรือใช้ password แทน private key
+SSH_PASSWORD=your_ssh_password
+
+# LDAP Remote Configuration
+LDAP_REMOTE_HOST=your-ldap-server.internal
+LDAP_REMOTE_PORT=636
+SSH_LOCAL_PORT=1389
+
+# LDAP Configuration
+LDAP_URL=ldaps://your-ldap-server:636
+LDAP_BASE_DN=DC=company,DC=com
+LDAP_BIND_DN=CN=ldap-service,OU=Service Accounts,DC=company,DC=com
+LDAP_BIND_PASSWORD=your_bind_password
+LDAP_DOMAIN_SUFFIX=company.com
+LDAP_ALT_DOMAIN_SUFFIX=company.local
+LDAP_TLS_REJECT_UNAUTHORIZED=false
+LDAP_CONNECT_TIMEOUT=30000
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100

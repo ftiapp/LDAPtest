@@ -24,6 +24,16 @@ function validateLDAPConfig() {
 
 validateLDAPConfig();
 
+// Get LDAP URL - direct connection only
+function getEffectiveLDAPUrl(): string {
+  return LDAP_URL!;
+}
+
+// Proxy configuration
+const USE_LDAP_PROXY = process.env.USE_LDAP_PROXY === 'true';
+const PROXY_LDAP_URL = process.env.PROXY_LDAP_URL;
+const PROXY_API_KEY = process.env.PROXY_API_KEY;
+
 const LDAP_URL = process.env.LDAP_URL;
 const LDAP_BASE_DN = process.env.LDAP_BASE_DN;
 const LDAP_DOMAIN_SUFFIX = process.env.LDAP_DOMAIN_SUFFIX;
@@ -35,11 +45,61 @@ const LDAP_CONNECT_TIMEOUT = parseInt(process.env.LDAP_CONNECT_TIMEOUT || '30000
 const LDAP_CONNECTION_RETRY_ATTEMPTS = parseInt(process.env.LDAP_CONNECTION_RETRY_ATTEMPTS || '4');
 const LDAP_CONNECTION_RETRY_DELAY = parseInt(process.env.LDAP_CONNECTION_RETRY_DELAY || '1000');
 
+// HTTP Proxy Authentication
+async function authenticateViaProxy(username: string, password: string): Promise<boolean> {
+  if (!PROXY_LDAP_URL) {
+    throw new Error('PROXY_LDAP_URL is not configured');
+  }
+
+  try {
+    console.log('Authenticating via HTTP proxy...');
+    
+    // Use AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    
+    const response = await fetch(`${PROXY_LDAP_URL}/api/ldap/auth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${PROXY_API_KEY || ''}`,
+      },
+      body: JSON.stringify({
+        username,
+        password,
+        config: {
+          ldapUrl: LDAP_URL,
+          baseDN: LDAP_BASE_DN,
+          bindDN: LDAP_BIND_DN,
+          bindPassword: LDAP_BIND_PASSWORD,
+          domainSuffix: LDAP_DOMAIN_SUFFIX,
+        }
+      }),
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Proxy authentication failed: ${error}`);
+    }
+
+    const result = await response.json();
+    return result.success === true;
+  } catch (error) {
+    console.error('Proxy authentication error:', error);
+    throw error;
+  }
+}
+
 async function testLDAPConnection(): Promise<{ success: boolean; details: string; outboundIP?: string }> {
   try {
     const ldap = await import('ldapjs');
+    const effectiveUrl = getEffectiveLDAPUrl();
+    
     const testClient = ldap.createClient({
-      url: LDAP_URL!,
+      url: effectiveUrl,
       tlsOptions: {
         rejectUnauthorized: LDAP_TLS_REJECT_UNAUTHORIZED,
       },
@@ -95,6 +155,9 @@ async function authenticateWithLDAP(username: string, password: string): Promise
     throw new Error('LDAP configuration is incomplete');
   }
 
+  // Get effective LDAP URL (direct connection)
+  const effectiveLDAPUrl = getEffectiveLDAPUrl();
+
   // Try both domain suffixes
   const domains = [LDAP_DOMAIN_SUFFIX, LDAP_ALT_DOMAIN_SUFFIX].filter(Boolean);
   
@@ -116,7 +179,7 @@ async function authenticateWithLDAP(username: string, password: string): Promise
           console.log(`Connection attempt ${attempt}/${LDAP_CONNECTION_RETRY_ATTEMPTS}`);
           
           adminClient = ldap.createClient({
-            url: LDAP_URL,
+            url: effectiveLDAPUrl,
             tlsOptions: {
               rejectUnauthorized: LDAP_TLS_REJECT_UNAUTHORIZED,
             },
@@ -303,7 +366,7 @@ async function authenticateWithLDAP(username: string, password: string): Promise
 
       // Now try to authenticate as the user
       const userClient = ldap.createClient({
-        url: LDAP_URL,
+        url: effectiveLDAPUrl,
         tlsOptions: {
           rejectUnauthorized: LDAP_TLS_REJECT_UNAUTHORIZED,
         },
@@ -506,7 +569,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Try LDAP authentication
-    const authenticated = await authenticateWithLDAP(username, password);
+    let authenticated = false;
+    
+    if (USE_LDAP_PROXY) {
+      console.log('Using LDAP proxy for authentication...');
+      try {
+        authenticated = await authenticateViaProxy(username, password);
+      } catch (proxyError) {
+        console.error('Proxy authentication failed, falling back to direct LDAP:', proxyError);
+        // Fallback to direct LDAP if proxy fails
+        authenticated = await authenticateWithLDAP(username, password);
+      }
+    } else {
+      authenticated = await authenticateWithLDAP(username, password);
+    }
 
     if (authenticated) {
       return NextResponse.json({ success: true, message: 'Login successful' });
@@ -523,5 +599,6 @@ export async function POST(request: NextRequest) {
       { error: error.message || 'Authentication failed' },
       { status: 401 }
     );
+  } finally {
   }
 }

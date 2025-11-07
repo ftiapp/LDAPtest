@@ -1,0 +1,47 @@
+# API Gateway Configuration - Enhanced Version
+# ใช้สำหรับรันบน server ที่เข้าถึง LDAP ได้ (on-premise, VPN, หรือ private network)
+
+# Gateway Settings
+GATEWAY_NAME=LDAP API Gateway
+GATEWAY_VERSION=2.0.0
+PROXY_PORT=443
+
+# SSL/HTTPS Configuration (สำหรับ production)
+SSL_ENABLED=true
+SSL_KEY_PATH=/path/to/ssl/private.key
+SSL_CERT_PATH=/path/to/ssl/certificate.crt
+SSL_CA_PATH=/path/to/ssl/ca_bundle.crt
+
+# LDAP Configuration
+LDAP_URL=ldaps://your-ldap-server:636
+LDAP_BASE_DN=DC=company,DC=com
+LDAP_BIND_DN=CN=ldap-service,OU=Service Accounts,DC=company,DC=com
+LDAP_BIND_PASSWORD=your_bind_password
+LDAP_DOMAIN_SUFFIX=company.com
+LDAP_ALT_DOMAIN_SUFFIX=company.local
+LDAP_TLS_REJECT_UNAUTHORIZED=false
+LDAP_CONNECT_TIMEOUT=30000
+
+# API Security
+PROXY_API_KEY=your-gateway-secret-api-key-here
+LDAP_API_KEY=your-ldap-service-specific-key
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+
+# Service Configuration
+# สามารถเพิ่มบริการอื่นๆ ได้ที่นี่
+# EXAMPLE_SERVICE_TARGET=http://localhost:3002
+# EXAMPLE_API_KEY=example-service-key
+
+# Logging
+LOG_LEVEL=info
+LOG_REQUESTS=true
+
+# Monitoring
+HEALTH_CHECK_ENABLED=true
+METRICS_ENABLED=false
+
+# Development Mode (disable SSL, enable debug)
+NODE_ENV=production

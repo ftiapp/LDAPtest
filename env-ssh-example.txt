@@ -1,0 +1,29 @@
+# LDAP Configuration
+LDAP_URL=ldaps://your-ldap-server:636
+LDAP_BASE_DN=DC=yourdomain,DC=com
+LDAP_BIND_DN=CN=admin,OU=Users,DC=yourdomain,DC=com
+LDAP_BIND_PASSWORD=your_bind_password
+LDAP_DOMAIN_SUFFIX=yourdomain.com
+LDAP_ALT_DOMAIN_SUFFIX=alt.yourdomain.com
+LDAP_TLS_REJECT_UNAUTHORIZED=false
+LDAP_CONNECT_TIMEOUT=30000
+LDAP_CONNECTION_RETRY_ATTEMPTS=4
+LDAP_CONNECTION_RETRY_DELAY=1000
+
+# SSH Tunnel Configuration (สำหรับ Kinsta hosting)
+SSH_TUNNEL_ENABLED=true
+SSH_HOST=203.151.40.52
+SSH_PORT=22
+SSH_USERNAME=your_ssh_username
+SSH_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----
+...your private key content...
+-----END PRIVATE KEY-----
+# หรือใช้ password แทน private key
+SSH_PASSWORD=your_ssh_password
+LDAP_REMOTE_HOST=your-ldap-server.internal
+LDAP_REMOTE_PORT=636
+
+# LDAP Proxy Configuration (ทางเลือกอื่น)
+USE_LDAP_PROXY=false
+PROXY_LDAP_URL=https://your-proxy-server.com
+PROXY_API_KEY=your_proxy_api_key

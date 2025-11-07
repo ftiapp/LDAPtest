@@ -1,0 +1,35 @@
+# LDAP Proxy Configuration - API Gateway Version
+# ใช้ API Gateway แทนการเชื่อมต่อ LDAP โดยตรง
+
+# 1. API Gateway (แนะนำสำหรับ Kinsta)
+USE_LDAP_PROXY=true
+PROXY_LDAP_URL=https://your-gateway-domain.com
+PROXY_API_KEY=your-gateway-api-key-here
+
+# 2. SSH Tunnel (ถ้ามี SSH access)
+SSH_TUNNEL_ENABLED=true
+SSH_HOST=your-server.com
+SSH_PORT=22
+SSH_USERNAME=ssh-user
+SSH_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+# หรือใช้ password แทน private key
+SSH_PASSWORD=ssh-password
+LDAP_REMOTE_HOST=ldap-server.com
+LDAP_REMOTE_PORT=636
+
+# Original LDAP Configuration (สำหรับ fallback)
+LDAP_URL=ldaps://your-ldap-server.com:636
+LDAP_BASE_DN=dc=company,dc=com
+LDAP_BIND_DN=cn=ldap-service,ou=Service Accounts,dc=company,dc=com
+LDAP_BIND_PASSWORD=your-bind-password
+LDAP_DOMAIN_SUFFIX=company.com
+LDAP_ALT_DOMAIN_SUFFIX=company.local
+LDAP_TLS_REJECT_UNAUTHORIZED=false
+LDAP_CONNECT_TIMEOUT=30000
+LDAP_CONNECTION_RETRY_ATTEMPTS=4
+LDAP_CONNECTION_RETRY_DELAY=1000
+
+# API Gateway Configuration
+GATEWAY_URL=https://your-gateway-domain.com
+GATEWAY_API_KEY=your-gateway-api-key
+LDAP_SERVICE_API_KEY=your-ldap-service-key

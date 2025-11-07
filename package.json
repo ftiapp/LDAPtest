@@ -9,11 +9,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "gateway:dev": "node ldap-proxy-server.js",
+    "gateway:start": "NODE_ENV=production node ldap-proxy-server.js",
+    "gateway:pm2": "pm2 start ldap-proxy-server.js --name api-gateway",
+    "gateway:stop": "pm2 stop api-gateway",
+    "gateway:logs": "pm2 logs api-gateway",
+    "kinsta-gateway": "node kinsta-gateway.js"
   },
   "dependencies": {
     "@types/ldapjs": "^3.0.6",
     "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "http-proxy-middleware": "^2.0.6",
     "ldapjs": "^3.0.7",
     "next": "16.0.1",
     "react": "19.2.0",
